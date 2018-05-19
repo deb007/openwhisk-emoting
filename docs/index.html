@@ -57,8 +57,13 @@
             <a class="navbar-item navbar-title" href="">
               &nbsp; emoting
             </a>
+            <a role="button" class="navbar-burger" data-target="navMenu" aria-label="menu" aria-expanded="false">
+              <span aria-hidden="true"></span>
+              <span aria-hidden="true"></span>
+              <span aria-hidden="true"></span>
+            </a>
           </div>
-          <div class="navbar-menu">
+          <div class="navbar-menu" id="navMenu">
             <div class="navbar-end">
               <div class="navbar-item">
                 <a href="https://github.com/IBM-Cloud/openwhisk-emoting" class="nav-item"><span class="navbar-icon"><i class="fa fa-github"></i></span></a>
@@ -90,7 +95,7 @@
             <input type="text" class="input new-event" name="title" id="title" placeholder="Ask a question" required autofocus/>
           </div>
           <div class="control">
-            <button type="submit" class="button is-success new-event">Get Feedback</button>
+            <button id="submit" type="submit" class="button is-success new-event">Get Feedback</button>
           </div>
         </div>
       </form>
@@ -111,6 +116,70 @@
         <hr/>
       </div>
 
+      {{#if hasResults}}
+      <div class="content">
+        <h3>Stats</h3>
+        <div class="columns is-centered">
+          <div class="column">
+            <div class="chart-container">
+              <canvas id="stats-chart"></canvas>
+            </div>    
+          </div>
+          <div class="column">
+            <div class="chart-container">
+              <canvas id="chart-doughnut"></canvas>
+            </div>
+          </div>
+        </div>
+
+        <div class="columns">
+          <div class="column is-2 has-text-right">
+            <span class="icon"><img src="images/svg/verygood.svg" /></span>
+          </div>
+          <div class="column">
+            <progress class="progress progress-verygood is-medium" value="{{ratings.[verygood].percent}}" max="100"></progress>
+          </div>
+          <div class="column is-2">
+            {{ratings.[verygood].percent}}% ({{ratings.[verygood].value}})
+          </div>
+        </div>
+        <div class="columns">
+          <div class="column is-2 has-text-right">
+            <span class="icon"><img src="images/svg/good.svg" /></span>
+          </div>
+          <div class="column">
+            <progress class="progress progress-good is-medium" value="{{ratings.[good].percent}}" max="100"></progress>
+          </div>
+          <div class="column is-2">
+            {{ratings.[good].percent}}% ({{ratings.[good].value}})
+          </div>
+        </div>
+        <div class="columns">
+          <div class="column is-2 has-text-right">
+            <span class="icon"><img src="images/svg/bad.svg" /></span>
+          </div>
+          <div class="column">
+            <progress class="progress progress-bad is-medium" value="{{ratings.[bad].percent}}" max="100"></progress>
+          </div>
+          <div class="column is-2">
+            {{ratings.[bad].percent}}% ({{ratings.[bad].value}})
+          </div>
+        </div>
+        <div class="columns">
+          <div class="column is-2 has-text-right">
+            <span class="icon"><img src="images/svg/verybad.svg" /></span>
+          </div>
+          <div class="column">
+            <progress class="progress progress-verybad is-medium" value="{{ratings.[verybad].percent}}" max="100"></progress>
+          </div>
+          <div class="column is-2">
+            {{ratings.[verybad].percent}}% ({{ratings.[verybad].value}})
+          </div>
+        </div>
+      </div>
+      {{/if}}
+
+      {{#unless hasResults}}
       <article class="message is-danger">
         <div class="message-header">
           Don't lose your stats!
@@ -121,9 +190,11 @@
           <strong>Bookmark it now!</strong>
         </div>
       </article>
+      {{/unless}}
 
       <div class="content">
-        When you are ready to collect feedback, share <strong><a href="{{url}}">the following link</a></strong> with your audience:
+        <h3>Get Feedback</h3>
+        Share <strong><a href="{{url}}">the following link</a></strong> with your audience to collect feedback:
         <div class="field has-addons question-url-container">
           <div class="control question-url">
             <input class="input is-medium is-info" id="questionUrl" type="text" value={{url}} readonly>
@@ -135,8 +206,9 @@
       </div>
 
       <div class="content">
+        <h3>Rate by SMS</h3>
         If you have enabled the SMS gateway, you can also assign a shortcode to your question.
-        Usees will be able to send the shortcode followed by an emoticon to capture their feedback.
+        Users will be able to send the shortcode followed by an emoticon to capture their feedback.
         <form id="questionShortcode" data-toggle="validator">
           <div class="field has-addons shortcode-container">
           <div class="control shortcode">
@@ -149,53 +221,6 @@
         </form>
       </div>
 
-      <div class="content">
-        <h3>Current Results ({{total}})</h3>
-        <div class="columns">
-          <div class="column is-2 has-text-right">
-            <span class="icon"><img src="images/svg/alternate-verygood.svg" /></span>
-          </div>
-          <div class="column">
-            <progress class="progress progress-verygood is-medium" value="{{ratings.[verygood].percent}}" max="100"></progress>
-          </div>
-          <div class="column is-2">
-            {{ratings.[verygood].percent}}% ({{ratings.[verygood].value}})
-          </div>
-        </div>
-        <div class="columns">
-          <div class="column is-2 has-text-right">
-            <span class="icon"><img src="images/svg/alternate-good.svg" /></span>
-          </div>
-          <div class="column">
-            <progress class="progress progress-good is-medium" value="{{ratings.[good].percent}}" max="100"></progress>
-          </div>
-          <div class="column is-2">
-            {{ratings.[good].percent}}% ({{ratings.[good].value}})
-          </div>
-        </div>
-        <div class="columns">
-          <div class="column is-2 has-text-right">
-            <span class="icon"><img src="images/svg/alternate-bad.svg" /></span>
-          </div>
-          <div class="column">
-            <progress class="progress progress-bad is-medium" value="{{ratings.[bad].percent}}" max="100"></progress>
-          </div>
-          <div class="column is-2">
-            {{ratings.[bad].percent}}% ({{ratings.[bad].value}})
-          </div>
-        </div>
-        <div class="columns">
-          <div class="column is-2 has-text-right">
-            <span class="icon"><img src="images/svg/alternate-verybad.svg" /></span>
-          </div>
-          <div class="column">
-            <progress class="progress progress-verybad is-medium" value="{{ratings.[verybad].percent}}" max="100"></progress>
-          </div>
-          <div class="column is-2">
-            {{ratings.[verybad].percent}}% ({{ratings.[verybad].value}})
-          </div>
-        </div>
-      </div>
     </div>
   </script>
 
@@ -204,21 +229,22 @@
       <h1 class="event-title" id="question-title">{{question.title}}</h1>
       <div class="columns ratings">
         <div class="column">
-          <img class="rating" data-shake="shake-vertical" data-value="verygood" src="images/svg/alternate-verygood.svg" width="100%" />
+          <img class="rating" data-shake="shake-vertical" data-value="verygood" src="images/svg/verygood.svg" width="100%" />
         </div>
         <div class="column">
-          <img class="rating" data-shake="shake-vertical" data-value="good" src="images/svg/alternate-good.svg" width="100%" />
+          <img class="rating" data-shake="shake-vertical" data-value="good" src="images/svg/good.svg" width="100%" />
         </div>
         <div class="column">
-          <img class="rating" data-shake="shake-horizontal" data-value="bad" src="images/svg/alternate-bad.svg" width="100%" />
+          <img class="rating" data-shake="shake-horizontal" data-value="bad" src="images/svg/bad.svg" width="100%" />
         </div>
         <div class="column">
-          <img class="rating" data-shake="shake-horizontal" data-value="verybad" src="images/svg/alternate-verybad.svg" width="100%" />
+          <img class="rating" data-shake="shake-horizontal" data-value="verybad" src="images/svg/verybad.svg" width="100%" />
         </div>
       </div>
     </div>
   </script>
 
+  <script src="//cdnjs.cloudflare.com/ajax/libs/Chart.js/2.7.2/Chart.bundle.min.js" integrity="sha256-XF29CBwU1MWLaGEnsELogU6Y6rcc5nCkhhx89nFMIDQ=" crossorigin="anonymous"></script>
   <script src="//cdnjs.cloudflare.com/ajax/libs/handlebars.js/4.0.6/handlebars.min.js"></script>
   <script src="//cdnjs.cloudflare.com/ajax/libs/clipboard.js/1.5.16/clipboard.min.js"></script>
   <script src="//ajax.googleapis.com/ajax/libs/jquery/1.12.4/jquery.min.js"></script>
